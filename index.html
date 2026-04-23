@@ -1,3 +1,6 @@
+Policy decoder · HTML
+Copy
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,41 +15,41 @@
 </script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
+ 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
   body {
     font-family: 'Inter', sans-serif;
     background: #1a1a1a;
     color: #e0e0e0;
     min-height: 100vh;
   }
-
+ 
   .wrap {
     max-width: 780px;
     margin: 0 auto;
     padding: 48px 24px 80px;
   }
-
+ 
   /* Header */
   .header { margin-bottom: 32px; }
-
+ 
   .header h1 {
     font-size: 24px;
     font-weight: 700;
     color: #fff;
     margin-bottom: 6px;
   }
-
+ 
   .header .sub {
     font-family: 'Courier New', monospace;
     font-size: 13px;
     color: #666;
     letter-spacing: 0.01em;
   }
-
+ 
   .header .sub span { color: #555; margin: 0 6px; }
-
+ 
   /* Tab nav */
   .tabs {
     display: flex;
@@ -54,7 +57,7 @@
     margin-bottom: 32px;
     gap: 0;
   }
-
+ 
   .tab {
     padding: 10px 20px;
     background: transparent;
@@ -68,19 +71,19 @@
     margin-bottom: -1px;
     transition: all 0.15s;
   }
-
+ 
   .tab.active {
     color: #fff;
     border-bottom-color: #4ade80;
     font-weight: 600;
   }
-
+ 
   .tab:hover:not(.active) { color: #aaa; }
-
+ 
   /* Panels */
   .panel { display: none; }
   .panel.active { display: block; }
-
+ 
   /* Cards */
   .card {
     background: #242424;
@@ -89,23 +92,23 @@
     padding: 24px 28px;
     margin-bottom: 16px;
   }
-
+ 
   .card h2 {
     font-size: 18px;
     font-weight: 700;
     color: #fff;
     margin-bottom: 12px;
   }
-
+ 
   .card p {
     font-size: 14px;
     line-height: 1.75;
     color: #aaa;
     margin-bottom: 12px;
   }
-
+ 
   .card p:last-child { margin-bottom: 0; }
-
+ 
   /* Section heading with dot */
   .section-head {
     display: flex;
@@ -113,7 +116,7 @@
     gap: 10px;
     margin-bottom: 12px;
   }
-
+ 
   .dot {
     width: 8px;
     height: 8px;
@@ -121,20 +124,20 @@
     background: #4ade80;
     flex-shrink: 0;
   }
-
+ 
   .section-head span {
     font-size: 14px;
     font-weight: 600;
     color: #fff;
   }
-
+ 
   /* Arrow list */
   .arrow-list {
     list-style: none;
     padding: 0;
     margin: 8px 0;
   }
-
+ 
   .arrow-list li {
     font-size: 14px;
     line-height: 1.7;
@@ -142,7 +145,7 @@
     padding: 3px 0 3px 22px;
     position: relative;
   }
-
+ 
   .arrow-list li::before {
     content: '→';
     position: absolute;
@@ -150,7 +153,7 @@
     color: #4ade80;
     font-size: 12px;
   }
-
+ 
   /* Tool panel */
   .doc-selector {
     background: #242424;
@@ -159,12 +162,12 @@
     overflow: hidden;
     margin-bottom: 12px;
   }
-
+ 
   .doc-tabs {
     display: flex;
     border-bottom: 1px solid #2e2e2e;
   }
-
+ 
   .doc-tab {
     flex: 1;
     padding: 11px 16px;
@@ -178,15 +181,15 @@
     transition: all 0.15s;
     border-right: 1px solid #2e2e2e;
   }
-
+ 
   .doc-tab:last-child { border-right: none; }
   .doc-tab.active { background: #1e1e1e; color: #fff; font-weight: 600; }
   .doc-tab:hover:not(.active) { color: #bbb; }
-
+ 
   .doc-body { padding: 16px 20px; }
   .doc-title { font-size: 13px; font-weight: 600; color: #e0e0e0; margin-bottom: 4px; }
   .doc-desc { font-size: 12px; color: #666; line-height: 1.5; font-family: 'Courier New', monospace; }
-
+ 
   /* Upload */
   .upload-area {
     border: 1.5px dashed #333;
@@ -196,12 +199,12 @@
     cursor: pointer;
     transition: all 0.15s;
   }
-
+ 
   .upload-area:hover { border-color: #4ade80; }
   .upload-area input { display: none; }
   .upload-area p { font-size: 13px; color: #666; line-height: 1.6; }
   .upload-area p strong { color: #e0e0e0; }
-
+ 
   /* Presets */
   .presets {
     display: flex;
@@ -209,7 +212,7 @@
     gap: 8px;
     margin-bottom: 12px;
   }
-
+ 
   .preset {
     font-family: 'Inter', sans-serif;
     font-size: 12px;
@@ -222,9 +225,9 @@
     cursor: pointer;
     transition: all 0.15s;
   }
-
+ 
   .preset:hover { border-color: #4ade80; color: #4ade80; }
-
+ 
   /* Textarea */
   textarea {
     width: 100%;
@@ -242,10 +245,10 @@
     transition: border-color 0.15s;
     margin-bottom: 10px;
   }
-
+ 
   textarea:focus { border-color: #4ade80; }
   textarea::placeholder { color: #444; }
-
+ 
   /* Button */
   .btn {
     width: 100%;
@@ -261,10 +264,10 @@
     transition: background 0.15s;
     margin-bottom: 20px;
   }
-
+ 
   .btn:hover { background: #6ee7a0; }
   .btn:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; }
-
+ 
   /* Output */
   .output {
     display: none;
@@ -274,14 +277,14 @@
     overflow: hidden;
     animation: fadeUp 0.25s ease;
   }
-
+ 
   .output.visible { display: block; }
-
+ 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
+ 
   .output-header {
     padding: 12px 20px;
     border-bottom: 1px solid #2e2e2e;
@@ -290,7 +293,7 @@
     justify-content: space-between;
     align-items: center;
   }
-
+ 
   .output-header-left {
     display: flex;
     align-items: center;
@@ -299,7 +302,7 @@
     font-weight: 600;
     color: #fff;
   }
-
+ 
   .output-header-right {
     display: flex;
     align-items: center;
@@ -308,14 +311,14 @@
     color: #555;
     font-family: 'Courier New', monospace;
   }
-
+ 
   .output-body {
     padding: 22px 24px;
     font-size: 14px;
     line-height: 1.8;
     color: #ccc;
   }
-
+ 
   .output-body.loading {
     color: #555;
     font-style: italic;
@@ -323,16 +326,16 @@
     align-items: center;
     gap: 10px;
   }
-
+ 
   .output-body p { margin-bottom: 12px; }
   .output-body p:last-child { margin-bottom: 0; }
-
+ 
   .output-body ul {
     list-style: none;
     padding: 0;
     margin: 6px 0 14px 0;
   }
-
+ 
   .output-body ul li {
     font-size: 14px;
     line-height: 1.7;
@@ -340,7 +343,7 @@
     padding: 3px 0 3px 22px;
     position: relative;
   }
-
+ 
   .output-body ul li::before {
     content: '→';
     position: absolute;
@@ -348,7 +351,7 @@
     color: #4ade80;
     font-size: 12px;
   }
-
+ 
   .from-doc {
     background: #1a2a1a;
     border-left: 3px solid #4ade80;
@@ -356,7 +359,7 @@
     padding: 14px 18px;
     margin: 12px 0;
   }
-
+ 
   .from-doc .source-label {
     font-size: 10px;
     font-weight: 700;
@@ -365,7 +368,7 @@
     color: #4ade80;
     margin-bottom: 8px;
   }
-
+ 
   .from-knowledge {
     background: #1e1c14;
     border-left: 3px solid #facc15;
@@ -373,7 +376,7 @@
     padding: 14px 18px;
     margin: 12px 0;
   }
-
+ 
   .from-knowledge .source-label {
     font-size: 10px;
     font-weight: 700;
@@ -382,7 +385,7 @@
     color: #facc15;
     margin-bottom: 8px;
   }
-
+ 
   /* Spinner */
   .spinner {
     width: 14px;
@@ -393,9 +396,9 @@
     animation: spin 0.7s linear infinite;
     flex-shrink: 0;
   }
-
+ 
   @keyframes spin { to { transform: rotate(360deg); } }
-
+ 
   /* Footer */
   .footer {
     margin-top: 40px;
@@ -409,7 +412,7 @@
 </head>
 <body>
 <div class="wrap">
-
+ 
   <div class="header">
     <h1>Policy Decoder</h1>
     <div class="sub">
@@ -420,21 +423,21 @@
       Any policy, any city
     </div>
   </div>
-
+ 
   <div class="tabs">
     <button class="tab active" onclick="showPanel('about')">About</button>
     <button class="tab" onclick="showPanel('decode')">Decode Document</button>
   </div>
-
+ 
   <!-- About Panel -->
   <div class="panel active" id="panel-about">
-
+ 
     <div class="card">
       <h2>Policy Decoder</h2>
       <p>Real estate developers spend weeks combing through regulatory documents — 200+ pages of legal language just to answer basic questions about a site. Zoning codes, QAPs, land use policies. Dense, repetitive, and written for lawyers.</p>
       <p>This tool reads them for you. Upload any policy document or use the pre-loaded 2026 Texas QAP and ask questions in plain English. Get clear, direct answers in seconds — sourced from the document or filled in from general knowledge when the document doesn't cover it.</p>
     </div>
-
+ 
     <div class="card">
       <div class="section-head"><div class="dot"></div><span>The Problem — Why This Exists</span></div>
       <ul class="arrow-list">
@@ -444,7 +447,7 @@
         <li>Pre-screening a site against regulatory criteria should happen before any money is spent — not after</li>
       </ul>
     </div>
-
+ 
     <div class="card">
       <div class="section-head"><div class="dot"></div><span>How to Use It</span></div>
       <ul class="arrow-list">
@@ -455,7 +458,7 @@
         <li>Ask as many questions as you want — each query searches the most relevant pages</li>
       </ul>
     </div>
-
+ 
     <div class="card">
       <div class="section-head"><div class="dot"></div><span>Pre-loaded: 2026 Texas QAP</span></div>
       <p>The Qualified Allocation Plan governs how Texas awards Housing Tax Credits — the primary financing tool for affordable housing development. It controls site eligibility, scoring criteria, disqualifiers, underwriting rules, and application requirements.</p>
@@ -466,12 +469,12 @@
         <li>Timeline: pre-application through carryover agreement deadlines</li>
       </ul>
     </div>
-
+ 
   </div>
-
+ 
   <!-- Decode Panel -->
   <div class="panel" id="panel-decode">
-
+ 
     <div class="doc-selector">
       <div class="doc-tabs">
         <button class="doc-tab active" onclick="selectDocTab('qap')">2026 Texas QAP</button>
@@ -488,7 +491,7 @@
         </div>
       </div>
     </div>
-
+ 
     <div class="presets">
       <button class="preset" onclick="setQ('What is this document about in plain English?')">What is this?</button>
       <button class="preset" onclick="setQ('What makes a site competitive for scoring?')">Site scoring</button>
@@ -497,11 +500,11 @@
       <button class="preset" onclick="setQ('What are the key deadlines and timeline?')">Timeline</button>
       <button class="preset" onclick="setQ('What is Target Population and how does it affect scoring?')">Target Population</button>
     </div>
-
+ 
     <textarea id="question" placeholder="Ask anything about this document...&#10;e.g. What does this mean for a developer building near a flood plain?" rows="3"></textarea>
-
+ 
     <button class="btn" id="btn" onclick="analyze()">Decode</button>
-
+ 
     <div class="output" id="output">
       <div class="output-header">
         <div class="output-header-left">
@@ -514,19 +517,19 @@
       </div>
       <div class="output-body" id="output-body"></div>
     </div>
-
+ 
     <p class="footer">Built for DevelopMate — because the best site decisions happen before the expensive reports do.</p>
-
+ 
   </div>
-
+ 
 </div>
-
+ 
 <script>
 const QAP = `Texas Department of Housing and Community Affairs — 2026 Qualified Allocation Plan (QAP), 10 TAC Chapter 11
-
+ 
 WHAT THIS IS:
 The official Texas rulebook for awarding Housing Tax Credits (HTC) — government subsidies that help developers finance affordable housing. 223 pages governing who gets credits, which sites qualify, and how applications are scored.
-
+ 
 SITE SCORING (§11.9) — HOW POINTS ARE EARNED:
 - Proximity to amenities: grocery store, pharmacy, transit, medical, schools, parks (each within specific distances)
 - Income targeting: serving very low income (50% AMI or below) earns more points
@@ -536,7 +539,7 @@ SITE SCORING (§11.9) — HOW POINTS ARE EARNED:
 - Community support: letters from mayor, city council, local officials add points
 - Site readiness: zoning confirmed, utilities available, environmental clearance done
 - Opportunity Index: sites in high-opportunity areas (good schools, low poverty, transit) score higher
-
+ 
 DISQUALIFIERS (§11.202):
 - Sites in 100-year flood plains without documented mitigation
 - Sites within restricted distances of high-pressure pipelines, high-voltage lines, or industrial uses
@@ -544,57 +547,57 @@ DISQUALIFIERS (§11.202):
 - Missing required third-party reports (market study, appraisal, Phase I environmental)
 - Sites failing the housing de-concentration test (too many affordable units already nearby)
 - Applicants with outstanding fees or enforcement actions
-
+ 
 SITE REQUIREMENTS (§11.101):
 - Zoning must be in place or documented approvals provided
 - All utilities must be available or letters confirming future availability required
 - Phase I Environmental Site Assessment required at minimum
 - Market study must show real demand for units at proposed rents
 - ADA and Fair Housing accessibility requirements must be met
-
+ 
 APPLICATION REQUIREMENTS (§11.201-11.205):
 - Complete checklist of required documents
 - Third-party reports required: market analysis, appraisal, environmental, scope/cost review
 - Public notification: residents nearby and elected officials must be formally notified
 - Application fees due at submission
-
+ 
 UNDERWRITING (§11.302-11.303):
 - Financial feasibility evaluated: debt coverage ratios, operating expenses, vacancy assumptions
 - Market analysis must demonstrate genuine demand for affordable units
 - Full sources and uses of funds must be documented and committed
-
+ 
 KEY TIMELINE (§11.2):
 - Pre-applications: October/November
 - Full competitive applications: January-March
 - Awards announced: June/July
 - Carryover agreements: by December 31
 - Construction must begin within required timeframe after award
-
+ 
 DE-CONCENTRATION RULES (§11.3):
 - Applications may be denied if the area already has a high concentration of affordable housing
 - Designed to prevent clustering low-income housing in already distressed neighborhoods
 - Maps and thresholds updated annually
-
+ 
 TARGET POPULATION (§11.1 Definitions):
 - Refers to the specific group of residents a development is intended to serve
 - Main categories: General (family housing), Elderly (age 55+ or 62+), and Special Needs populations
 - Affects scoring: when evaluating whether a census tract has competing developments nearby, only developments serving the same Target Population count against you
 - Example: if your development serves elderly residents, a nearby family housing development does NOT reduce your competition score
-
+ 
 WHY THIS MATTERS FOR SITE SELECTION:
 A site's eligibility and competitiveness is largely determined before spending money on reports. Location (proximity to services, opportunity score, flood plain status), zoning, and local support are all assessable from public data. Pre-screening sites against QAP criteria early can prevent months of work on ineligible sites.`;
-
+ 
 let docMode = 'qap';
 let uploadedPages = [];
 let uploadedText = '';
-
+ 
 function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   event.target.classList.add('active');
 }
-
+ 
 function selectDocTab(m) {
   docMode = m;
   document.querySelectorAll('.doc-tab').forEach((t, i) => {
@@ -603,7 +606,7 @@ function selectDocTab(m) {
   document.getElementById('qap-body').style.display = m === 'qap' ? 'block' : 'none';
   document.getElementById('upload-body').style.display = m === 'upload' ? 'block' : 'none';
 }
-
+ 
 function getRelevantChunks(query, pages, maxChars = 28000) {
   const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 3);
   const scored = pages.map(p => {
@@ -627,13 +630,13 @@ function getRelevantChunks(query, pages, maxChars = 28000) {
   }
   return result;
 }
-
+ 
 async function handleFile(e) {
   const file = e.target.files[0];
   if (!file) return;
   const area = document.getElementById('upload-area');
   area.innerHTML = `<p><span style="color:#555;font-style:italic;">Reading ${file.name}...</span></p>`;
-
+ 
   if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
     try {
       const arrayBuffer = await file.arrayBuffer();
@@ -663,7 +666,7 @@ async function handleFile(e) {
     reader.readAsText(file);
   }
 }
-
+ 
 function resetUpload() {
   uploadedText = ''; uploadedPages = [];
   document.getElementById('upload-body').innerHTML = `
@@ -672,25 +675,25 @@ function resetUpload() {
       <p><strong>Click to upload</strong><br>PDF, TXT, or Markdown — any policy or regulatory document</p>
     </div>`;
 }
-
+ 
 function setQ(q) { document.getElementById('question').value = q; }
-
+ 
 function formatResponse(text) {
   text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   text = text.replace(/\*(.*?)\*/g, '$1');
   const lines = text.split('\n');
   let html = '', inList = false, inDoc = false, inKnow = false;
-
+ 
   const close = () => {
     if (inList) { html += '</ul>'; inList = false; }
     if (inDoc) { html += '</div>'; inDoc = false; }
     if (inKnow) { html += '</div>'; inKnow = false; }
   };
-
+ 
   for (const line of lines) {
     const t = line.trim();
     if (!t) { if (inList) { html += '</ul>'; inList = false; } continue; }
-
+ 
     if (/^from the document[:\s]/i.test(t)) {
       close();
       html += '<div class="from-doc"><div class="source-label">From the document</div>';
@@ -699,7 +702,7 @@ function formatResponse(text) {
       if (rest) html += `<p>${rest}</p>`;
       continue;
     }
-
+ 
     if (/^based on (general )?knowledge[:\s]/i.test(t) || /^from (general )?knowledge[:\s]/i.test(t)) {
       close();
       html += '<div class="from-knowledge"><div class="source-label">Claude\'s knowledge (not in document)</div>';
@@ -708,33 +711,33 @@ function formatResponse(text) {
       if (rest) html += `<p>${rest}</p>`;
       continue;
     }
-
+ 
     if (/^[-•]\s/.test(t)) {
       if (!inList) { html += '<ul>'; inList = true; }
       html += `<li>${t.replace(/^[-•]\s/, '')}</li>`;
       continue;
     }
-
+ 
     if (/^\d+\.\s/.test(t)) {
       if (!inList) { html += '<ul>'; inList = true; }
       html += `<li>${t.replace(/^\d+\.\s/, '')}</li>`;
       continue;
     }
-
+ 
     if (inList) { html += '</ul>'; inList = false; }
     html += `<p>${t}</p>`;
   }
   close();
   return html;
 }
-
+ 
 async function analyze() {
   const q = document.getElementById('question').value.trim();
   if (!q) { document.getElementById('question').focus(); return; }
   if (docMode === 'upload' && !uploadedText && uploadedPages.length === 0) {
     alert('Please upload a document first.'); return;
   }
-
+ 
   let doc, name;
   if (docMode === 'qap') {
     doc = QAP; name = '2026 Texas QAP';
@@ -743,33 +746,33 @@ async function analyze() {
   } else {
     doc = uploadedText.substring(0, 28000); name = 'Uploaded Document';
   }
-
+ 
   const btn = document.getElementById('btn');
   btn.disabled = true; btn.textContent = 'Analyzing...';
-
+ 
   const output = document.getElementById('output');
   const body = document.getElementById('output-body');
   output.classList.add('visible');
   body.className = 'output-body loading';
   body.innerHTML = '<div class="spinner"></div> Reading document...';
   document.getElementById('meta').textContent = '';
-
+ 
   const t0 = Date.now();
-
+ 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
         system: `You translate dense regulatory and policy documents into plain English. Be direct, specific, and clear. No filler phrases. Use bullet points for lists. Give examples when helpful. Answer only what was asked.
-
+ 
 If the document doesn't contain enough information to fully answer the question, use your own knowledge to fill in the gaps. Clearly distinguish by prefixing sections with either "From the document:" or "Based on general knowledge:" so the user knows the source. Never refuse to answer just because the document is incomplete.`,
         messages: [{ role: 'user', content: `Document (${name}):\n\n${doc}\n\n---\n\nQuestion: ${q}` }]
       })
     });
-
+ 
     const data = await res.json();
     const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
     body.className = 'output-body';
@@ -779,10 +782,10 @@ If the document doesn't contain enough information to fully answer the question,
     body.className = 'output-body';
     body.textContent = `Error: ${err.message}`;
   }
-
+ 
   btn.disabled = false; btn.textContent = 'Decode';
 }
-
+ 
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) analyze();
 });
