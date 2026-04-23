@@ -8,6 +8,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    const requestBody = req.body || {};
+    const wantsStream = Boolean(requestBody.stream);
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -15,12 +18,34 @@ export default async function handler(req, res) {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(requestBody)
     });
 
+    if (wantsStream) {
+      res.status(response.status);
+      res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('Connection', 'keep-alive');
+
+      if (!response.ok || !response.body) {
+        const fallback = await response.text();
+        res.write(`data: ${JSON.stringify({ type: 'error', error: fallback })}\n\n`);
+        return res.end();
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        res.write(decoder.decode(value, { stream: true }));
+      }
+      return res.end();
+    }
+
     const data = await response.json();
-    res.status(response.status).json(data);
+    return res.status(response.status).json(data);
   } catch (err) {
-    res.status(500).json({ error: { message: err.message } });
+    return res.status(500).json({ error: { message: err.message } });
   }
 }

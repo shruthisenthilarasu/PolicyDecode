@@ -329,6 +329,18 @@ Copy
  
   .output-body p { margin-bottom: 12px; }
   .output-body p:last-child { margin-bottom: 0; }
+
+  .output-body h1,
+  .output-body h2,
+  .output-body h3 {
+    color: #f3f4f6;
+    line-height: 1.35;
+    margin: 14px 0 8px;
+  }
+
+  .output-body h1 { font-size: 20px; }
+  .output-body h2 { font-size: 17px; }
+  .output-body h3 { font-size: 15px; }
  
   .output-body ul {
     list-style: none;
@@ -607,7 +619,7 @@ function selectDocTab(m) {
   document.getElementById('upload-body').style.display = m === 'upload' ? 'block' : 'none';
 }
  
-function getRelevantChunks(query, pages, maxChars = 28000) {
+function getRelevantChunks(query, pages, maxChars = 12000, maxPages = 8) {
   const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 3);
   const scored = pages.map(p => {
     const lower = p.text.toLowerCase();
@@ -617,15 +629,20 @@ function getRelevantChunks(query, pages, maxChars = 28000) {
   const sorted = scored.sort((a, b) => b.score - a.score);
   let result = '', chars = 0;
   const used = [];
+  let selectedPages = 0;
   for (const p of sorted) {
+    if (selectedPages >= maxPages) break;
     if (chars + p.text.length > maxChars) break;
     result += `\n--- Page ${p.pageNum} ---\n${p.text}`;
     chars += p.text.length;
     used.push(p.pageNum);
+    selectedPages += 1;
   }
   for (const p of pages.slice(0, 2)) {
+    if (selectedPages >= maxPages) break;
     if (!used.includes(p.pageNum) && chars + p.text.length < maxChars + 4000) {
       result += `\n--- Page ${p.pageNum} ---\n${p.text}`;
+      selectedPages += 1;
     }
   }
   return result;
@@ -723,6 +740,24 @@ function formatResponse(text) {
       html += `<li>${t.replace(/^\d+\.\s/, '')}</li>`;
       continue;
     }
+
+    if (/^###\s+/.test(t)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<h3>${t.replace(/^###\s+/, '')}</h3>`;
+      continue;
+    }
+
+    if (/^##\s+/.test(t)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<h2>${t.replace(/^##\s+/, '')}</h2>`;
+      continue;
+    }
+
+    if (/^#\s+/.test(t)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<h1>${t.replace(/^#\s+/, '')}</h1>`;
+      continue;
+    }
  
     if (inList) { html += '</ul>'; inList = false; }
     html += `<p>${t}</p>`;
@@ -766,6 +801,7 @@ async function analyze() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
+        stream: true,
         system: `You translate dense regulatory and policy documents into plain English. Be direct, specific, and clear. No filler phrases. Use bullet points for lists. Give examples when helpful. Answer only what was asked.
  
 If the document doesn't contain enough information to fully answer the question, use your own knowledge to fill in the gaps. Clearly distinguish by prefixing sections with either "From the document:" or "Based on general knowledge:" so the user knows the source. Never refuse to answer just because the document is incomplete.`,
@@ -773,11 +809,65 @@ If the document doesn't contain enough information to fully answer the question,
       })
     });
  
-    const data = await res.json();
-    const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
     body.className = 'output-body';
-    body.innerHTML = formatResponse(data.content?.[0]?.text || `Error: ${data.error?.message || 'Something went wrong'}`);
-    document.getElementById('meta').textContent = `${elapsed}s`;
+
+    if (!res.ok || !res.body) {
+      const data = await res.json();
+      body.innerHTML = formatResponse(data.content?.[0]?.text || `Error: ${data.error?.message || 'Something went wrong'}`);
+      document.getElementById('meta').textContent = `${((Date.now() - t0) / 1000).toFixed(1)}s`;
+      return;
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullText = '';
+    let finished = false;
+    let lastRender = 0;
+
+    const render = (force = false) => {
+      const now = Date.now();
+      if (!force && now - lastRender < 120) return;
+      body.innerHTML = formatResponse(fullText || '...');
+      document.getElementById('meta').textContent = `${((now - t0) / 1000).toFixed(1)}s`;
+      lastRender = now;
+    };
+
+    while (!finished) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop() || '';
+
+      for (const part of parts) {
+        const lines = part.split('\n');
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const payload = line.slice(6).trim();
+          if (!payload || payload === '[DONE]') {
+            finished = true;
+            continue;
+          }
+          try {
+            const evt = JSON.parse(payload);
+            if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+              fullText += evt.delta.text || '';
+            } else if (evt.type === 'message_stop') {
+              finished = true;
+            } else if (evt.type === 'error') {
+              fullText += `\nError: ${evt.error?.message || evt.error || 'Something went wrong'}`;
+              finished = true;
+            }
+          } catch (_) {
+            // Ignore non-JSON SSE frames.
+          }
+        }
+        render();
+      }
+    }
+
+    render(true);
   } catch (err) {
     body.className = 'output-body';
     body.textContent = `Error: ${err.message}`;
