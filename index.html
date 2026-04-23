@@ -773,6 +773,31 @@ function formatResponse(text) {
   close();
   return html;
 }
+
+function extractTextFromSseChunk(chunk, state) {
+  const lines = chunk.split('\n');
+  for (const line of lines) {
+    if (!line.startsWith('data:')) continue;
+    const payload = line.slice(5).trim();
+    if (!payload || payload === '[DONE]') {
+      state.finished = true;
+      continue;
+    }
+    try {
+      const evt = JSON.parse(payload);
+      if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+        state.fullText += evt.delta.text || '';
+      } else if (evt.type === 'message_stop') {
+        state.finished = true;
+      } else if (evt.type === 'error') {
+        state.fullText += `\nError: ${evt.error?.message || evt.error || 'Something went wrong'}`;
+        state.finished = true;
+      }
+    } catch (_) {
+      // Ignore malformed/non-JSON frames.
+    }
+  }
+}
  
 async function analyze() {
   const q = document.getElementById('question').value.trim();
@@ -826,30 +851,49 @@ If the document doesn't contain enough information to fully answer the question,
     });
  
     body.className = 'output-body';
+    const contentType = (res.headers.get('content-type') || '').toLowerCase();
+    const isSse = contentType.includes('text/event-stream');
 
-    if (!res.ok || !res.body) {
-      const data = await res.json();
+    if (!isSse) {
+      let data;
+      try {
+        data = await res.json();
+      } catch (_) {
+        const fallbackText = await res.text();
+        data = { error: { message: fallbackText || 'Unexpected response format' } };
+      }
       body.innerHTML = formatResponse(data.content?.[0]?.text || `Error: ${data.error?.message || 'Something went wrong'}`);
       document.getElementById('meta').textContent = `${((Date.now() - t0) / 1000).toFixed(1)}s`;
+      return;
+    }
+
+    let lastRender = 0;
+    const state = { fullText: '', finished: false };
+
+    const render = (force = false) => {
+      const now = Date.now();
+      if (!force && now - lastRender < 200) return;
+      body.innerHTML = formatResponse(state.fullText || '...');
+      document.getElementById('meta').textContent = `${((now - t0) / 1000).toFixed(1)}s`;
+      lastRender = now;
+    };
+
+    if (!res.body) {
+      const raw = await res.text();
+      const frames = raw.split('\n\n');
+      for (const frame of frames) {
+        extractTextFromSseChunk(frame, state);
+      }
+      render(true);
+      answerCache.set(cacheKey, body.innerHTML);
+      btn.disabled = false; btn.textContent = 'Decode';
       return;
     }
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    let fullText = '';
-    let finished = false;
-    let lastRender = 0;
-
-    const render = (force = false) => {
-      const now = Date.now();
-      if (!force && now - lastRender < 200) return;
-      body.innerHTML = formatResponse(fullText || '...');
-      document.getElementById('meta').textContent = `${((now - t0) / 1000).toFixed(1)}s`;
-      lastRender = now;
-    };
-
-    while (!finished) {
+    while (!state.finished) {
       const { value, done } = await reader.read();
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
@@ -857,28 +901,7 @@ If the document doesn't contain enough information to fully answer the question,
       buffer = parts.pop() || '';
 
       for (const part of parts) {
-        const lines = part.split('\n');
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const payload = line.slice(6).trim();
-          if (!payload || payload === '[DONE]') {
-            finished = true;
-            continue;
-          }
-          try {
-            const evt = JSON.parse(payload);
-            if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
-              fullText += evt.delta.text || '';
-            } else if (evt.type === 'message_stop') {
-              finished = true;
-            } else if (evt.type === 'error') {
-              fullText += `\nError: ${evt.error?.message || evt.error || 'Something went wrong'}`;
-              finished = true;
-            }
-          } catch (_) {
-            // Ignore non-JSON SSE frames.
-          }
-        }
+        extractTextFromSseChunk(part, state);
         render();
       }
     }
