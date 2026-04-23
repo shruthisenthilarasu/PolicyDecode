@@ -602,6 +602,8 @@ A site's eligibility and competitiveness is largely determined before spending m
 let docMode = 'qap';
 let uploadedPages = [];
 let uploadedText = '';
+const answerCache = new Map();
+const FAST_MODEL = 'claude-3-5-haiku-latest';
  
 function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -619,11 +621,16 @@ function selectDocTab(m) {
   document.getElementById('upload-body').style.display = m === 'upload' ? 'block' : 'none';
 }
  
-function getRelevantChunks(query, pages, maxChars = 12000, maxPages = 8) {
-  const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+function getRelevantChunks(query, pages, maxChars = 7000, maxPages = 5) {
+  const keywords = query
+    .toLowerCase()
+    .split(/\s+/)
+    .map(w => w.replace(/[^a-z0-9]/g, ''))
+    .filter(w => w.length > 3)
+    .slice(0, 10);
   const scored = pages.map(p => {
-    const lower = p.text.toLowerCase();
-    const score = keywords.reduce((acc, kw) => acc + (lower.match(new RegExp(kw, 'g')) || []).length, 0);
+    if (!p._lower) p._lower = p.text.toLowerCase();
+    const score = keywords.reduce((acc, kw) => acc + (p._lower.includes(kw) ? 1 : 0), 0);
     return { ...p, score };
   });
   const sorted = scored.sort((a, b) => b.score - a.score);
@@ -662,7 +669,8 @@ async function handleFile(e) {
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        uploadedPages.push({ pageNum: i, text: content.items.map(x => x.str).join(' ') });
+        const pageText = content.items.map(x => x.str).join(' ');
+        uploadedPages.push({ pageNum: i, text: pageText, _lower: pageText.toLowerCase() });
         if (i % 20 === 0) area.innerHTML = `<p><span style="color:#555;font-style:italic;">Reading page ${i} of ${pdf.numPages}...</span></p>`;
       }
       uploadedText = '';
@@ -793,16 +801,24 @@ async function analyze() {
   document.getElementById('meta').textContent = '';
  
   const t0 = Date.now();
+  const cacheKey = `${docMode}::${name}::${q.toLowerCase()}::${doc.length}`;
+  if (answerCache.has(cacheKey)) {
+    body.className = 'output-body';
+    body.innerHTML = answerCache.get(cacheKey);
+    document.getElementById('meta').textContent = 'cached';
+    btn.disabled = false; btn.textContent = 'Decode';
+    return;
+  }
  
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        model: FAST_MODEL,
+        max_tokens: 600,
         stream: true,
-        system: `You translate dense regulatory and policy documents into plain English. Be direct, specific, and clear. No filler phrases. Use bullet points for lists. Give examples when helpful. Answer only what was asked.
+        system: `You translate dense regulatory and policy documents into plain English. Be direct, specific, and clear. No filler phrases. Use bullet points for lists. Keep responses concise (5-10 bullets max unless asked for more). Answer only what was asked.
  
 If the document doesn't contain enough information to fully answer the question, use your own knowledge to fill in the gaps. Clearly distinguish by prefixing sections with either "From the document:" or "Based on general knowledge:" so the user knows the source. Never refuse to answer just because the document is incomplete.`,
         messages: [{ role: 'user', content: `Document (${name}):\n\n${doc}\n\n---\n\nQuestion: ${q}` }]
@@ -827,7 +843,7 @@ If the document doesn't contain enough information to fully answer the question,
 
     const render = (force = false) => {
       const now = Date.now();
-      if (!force && now - lastRender < 120) return;
+      if (!force && now - lastRender < 200) return;
       body.innerHTML = formatResponse(fullText || '...');
       document.getElementById('meta').textContent = `${((now - t0) / 1000).toFixed(1)}s`;
       lastRender = now;
@@ -868,6 +884,7 @@ If the document doesn't contain enough information to fully answer the question,
     }
 
     render(true);
+    answerCache.set(cacheKey, body.innerHTML);
   } catch (err) {
     body.className = 'output-body';
     body.textContent = `Error: ${err.message}`;
